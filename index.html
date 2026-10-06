@@ -4,23 +4,23 @@
 <style>
 /* Layout: control bar over a map + ficha comunal split; cruce de datos y tabla debajo; fuentes al pie. */
 :root {
-  --bg: #f3f6f7; --panel: #ffffff; --ink: #0e1a1f; --ink-2: #4a5a61; --ink-3: #7b8a90;
-  --line: #d9e1e4; --accent: #0f6f7c; --accent-soft: #e0eff1; --nodata: #e7e9e8; --hl: #e0592a;
-  --s1: #cde2fb; --s2: #9ec5f4; --s3: #6da7ec; --s4: #3987e5; --s5: #256abf; --s6: #184f95; --s7: #0d366b;
+  --bg: #f8f4f4; --panel: #ffffff; --ink: #1f1214; --ink-2: #5e4a4d; --ink-3: #8c7a7d;
+  --line: #ecdcdd; --accent: #b3202f; --accent-soft: #fbe9ea; --nodata: #ebe7e7; --hl: #1d2b53;
+  --s1: #fee5d9; --s2: #fcbba1; --s3: #fc9272; --s4: #fb6a4a; --s5: #ef3b2c; --s6: #cb181d; --s7: #8f0010;
   --c1: #2a78d6; --c2: #eb6834; --c3: #1baf7a;
   --f-display: "Archivo", "Arial Narrow", system-ui, sans-serif;
   --f-body: "Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #0d1316; --panel: #151d21; --ink: #eaf1f3; --ink-2: #a9b8be; --ink-3: #7d8d93;
-  --line: #2a363b; --accent: #5cc3cf; --accent-soft: #17323a; --nodata: #2a3236; --hl: #ff7a45;
-  --s1: #cde2fb; --s2: #9ec5f4; --s3: #6da7ec; --s4: #3987e5; --s5: #256abf; --s6: #184f95; --s7: #104281;
+  --bg: #150d0e; --panel: #1f1415; --ink: #f6eced; --ink-2: #c4aeb0; --ink-3: #947f81;
+  --line: #3b2a2c; --accent: #ff6b6b; --accent-soft: #3a1a1d; --nodata: #3a3031; --hl: #ffffff;
+  --s1: #fee5d9; --s2: #fcbba1; --s3: #fc9272; --s4: #fb6a4a; --s5: #ef3b2c; --s6: #cb181d; --s7: #a50f15;
   --c1: #3987e5; --c2: #d95926; --c3: #199e70; color-scheme: dark; } }
 :root[data-theme="dark"] {
-  --bg: #0d1316; --panel: #151d21; --ink: #eaf1f3; --ink-2: #a9b8be; --ink-3: #7d8d93;
-  --line: #2a363b; --accent: #5cc3cf; --accent-soft: #17323a; --nodata: #2a3236; --hl: #ff7a45;
-  --s1: #cde2fb; --s2: #9ec5f4; --s3: #6da7ec; --s4: #3987e5; --s5: #256abf; --s6: #184f95; --s7: #104281;
+  --bg: #150d0e; --panel: #1f1415; --ink: #f6eced; --ink-2: #c4aeb0; --ink-3: #947f81;
+  --line: #3b2a2c; --accent: #ff6b6b; --accent-soft: #3a1a1d; --nodata: #3a3031; --hl: #ffffff;
+  --s1: #fee5d9; --s2: #fcbba1; --s3: #fc9272; --s4: #fb6a4a; --s5: #ef3b2c; --s6: #cb181d; --s7: #a50f15;
   --c1: #3987e5; --c2: #d95926; --c3: #199e70; color-scheme: dark; }
 * { box-sizing: border-box; }
 body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--f-body); }
@@ -121,14 +121,14 @@ tbody tr.on { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--hl
 .note { border-left: 3px solid var(--hl); padding: 8px 12px; background: var(--accent-soft); font-size: 13px; color: var(--ink-2); border-radius: 0 4px 4px 0; }
 /* Estilo Brújula Electoral: encabezado destacado, tarjetas suaves y botones redondeados */
 body { background: radial-gradient(1200px 500px at 50% -120px, var(--accent-soft), transparent 70%), var(--bg); margin: 0; }
-header.top { background: linear-gradient(135deg, #0b3d4a 0%, #0f6f7c 55%, #1c8f8a 100%); color: #fff; border: 0; border-radius: 16px; padding: 28px 28px 24px; box-shadow: 0 12px 32px rgb(11 61 74 / .25); }
+header.top { background: linear-gradient(135deg, #4a0710 0%, #9e1426 55%, #d43a3f 100%); color: #fff; border: 0; border-radius: 16px; padding: 28px 28px 24px; box-shadow: 0 12px 32px rgb(120 10 25 / .28); }
 header.top h1 { font-size: clamp(32px, 5.5vw, 56px); font-stretch: 85%; letter-spacing: .02em; display: flex; align-items: center; gap: 14px; }
 header.top h1 .brujula { font-size: .8em; display: inline-grid; place-items: center; width: 1.35em; height: 1.35em; border-radius: 50%; background: rgb(255 255 255 / .14); }
 header.top p { color: rgb(255 255 255 / .85); font-size: 16px; margin-top: 10px; }
 header.top .eyebrow { color: rgb(255 255 255 / .7); }
 header.top .meta { color: rgb(255 255 255 / .7); }
 header.top .meta a { color: #fff !important; font-weight: 600; }
-.panel { border-radius: 14px; padding: 20px; box-shadow: 0 1px 2px rgb(0 0 0 / .04), 0 6px 20px rgb(15 50 60 / .06); }
+.panel { border-radius: 14px; padding: 20px; box-shadow: 0 1px 2px rgb(0 0 0 / .04), 0 6px 20px rgb(90 20 30 / .07); }
 h2 { font-size: 22px; }
 .eyebrow { color: var(--accent); }
 select, button { border-radius: 8px; transition: background .15s, border-color .15s, box-shadow .15s; }
@@ -175,6 +175,9 @@ tbody tr:hover, tbody tr.on { background: var(--accent-soft); }
 .btn { display: inline-block; font: 600 14px var(--f-body); text-decoration: none; background: var(--accent); color: #fff; border: 1px solid var(--accent); border-radius: 8px; padding: 7px 12px; }
 .btn.sec { background: var(--panel); color: var(--accent); }
 .btn[hidden], .form-only[hidden], .repo-only[hidden] { display: none; }
+.filt-info { flex-basis: 100%; margin: 0; font-size: 13px; color: var(--ink-2); }
+.filt-info:empty { display: none; }
+.filt-info b { color: var(--accent); }
 .btn:hover { filter: brightness(1.08); }
 .ficha .reportar { display: inline-block; margin-top: 10px; font-size: 13px; color: var(--accent); }
 .alerta .sesgo { font-size: 13px; margin-top: 2px; font-weight: 600; }
@@ -229,6 +232,7 @@ tbody tr:hover, tbody tr.on { background: var(--accent-soft); }
         <button data-f="d21">Distrito 21</button>
       </div>
     </div>
+    <p class="filt-info" id="filt-info" aria-live="polite"></p>
   </section>
 
   <div class="main">
@@ -533,13 +537,13 @@ document.getElementById('catleg').innerHTML = PROVS.map(p => `<span><i style="ba
 // ---------- tabla ----------
 const TCOLS = CONFIG.columnas_tabla.filter(id => BY[id]);
 function drawTable() {
-  const th = `<tr><th data-k="nombre" tabindex="0">Comuna</th><th data-k="provincia" tabindex="0">Provincia</th>` +
+  const th = `<tr><th data-k="nombre" tabindex="0">Comuna</th><th data-k="provincia" tabindex="0">Provincia</th><th data-k="distrito" tabindex="0">Distrito</th>` +
     TCOLS.map(id => `<th data-k="${id}" tabindex="0" title="${BY[id].l} (${BY[id].y})">${BY[id].s}${BY[id].u ? ' (' + BY[id].u + ')' : ''}</th>`).join('') + '</tr>';
   const tbl = document.getElementById('tbl');
   tbl.tHead.innerHTML = th;
   tbl.tHead.querySelectorAll('th').forEach(t => {
     if (t.dataset.k === state.sortKey) t.setAttribute('aria-sort', state.sortDir > 0 ? 'ascending' : 'descending');
-    const go = () => { if (state.sortKey === t.dataset.k) state.sortDir *= -1; else { state.sortKey = t.dataset.k; state.sortDir = (t.dataset.k === 'nombre' || t.dataset.k === 'provincia') ? 1 : -1; } drawTable(); };
+    const go = () => { if (state.sortKey === t.dataset.k) state.sortDir *= -1; else { state.sortKey = t.dataset.k; state.sortDir = (t.dataset.k === 'nombre' || t.dataset.k === 'provincia' || t.dataset.k === 'distrito') ? 1 : -1; } drawTable(); };
     t.onclick = go; t.onkeydown = e => { if (e.key === 'Enter') go(); };
   });
   const k = state.sortKey;
@@ -548,7 +552,7 @@ function drawTable() {
     if (va == null) return 1; if (vb == null) return -1;
     return (typeof va === 'string' ? va.localeCompare(vb, 'es') : va - vb) * state.sortDir;
   });
-  tbl.tBodies[0].innerHTML = rows.map(c => `<tr data-cut="${c.cut}" class="${c.cut === state.sel ? 'on' : ''}"><td>${c.nombre}</td><td>${c.provincia}</td>` +
+  tbl.tBodies[0].innerHTML = rows.map(c => `<tr data-cut="${c.cut}" class="${c.cut === state.sel ? 'on' : ''}"><td>${c.nombre}</td><td>${c.provincia}</td><td>${c.distrito}</td>` +
     TCOLS.map(id => `<td>${nf(c[id], BY[id], true)}</td>`).join('') + '</tr>').join('');
   tbl.tBodies[0].querySelectorAll('tr').forEach(tr => tr.onclick = () => { select(+tr.dataset.cut); document.getElementById('ficha').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); });
 }
@@ -579,8 +583,19 @@ ySel.onchange = () => { state.y = ySel.value; drawScatter(); };
 document.getElementById('swap').onclick = () => { [state.x, state.y] = [state.y, state.x]; xSel.value = state.x; ySel.value = state.y; drawScatter(); };
 document.querySelectorAll('#filt button').forEach(b => b.onclick = () => {
   state.filt = b.dataset.f; document.querySelectorAll('#filt button').forEach(o => o.setAttribute('aria-pressed', o === b));
-  drawMap(); drawScatter();
+  drawMap(); drawScatter(); infoFiltro();
 });
+// Lista de comunas del distrito o provincia resaltada
+const DIST_TXT = { d20: 'Distrito 20 (diputados)', d21: 'Distrito 21 (diputados)' };
+function infoFiltro() {
+  const f = state.filt, el = document.getElementById('filt-info');
+  if (f === 'all') { el.textContent = ''; return; }
+  const cs = COM.filter(inFilter).map(c => c.nombre).sort((a, b) => a.localeCompare(b, 'es'));
+  const nom = DIST_TXT[f] || `Provincia de ${f}`;
+  el.innerHTML = '';
+  const b = document.createElement('b'); b.textContent = `${nom}: ${cs.length} comunas. `;
+  el.append(b, document.createTextNode(cs.join(', ') + '.'));
+}
 // ---------- alerta de datos faltantes ----------
 (() => {
   const F = CONFIG.faltantes || [];
