@@ -1,0 +1,32 @@
+id,grupo,nombre,nombre_corto,unidad,anio,fuente_id,nota,entero
+kast_2025_2v,Electoral,"Votos de Kast, 2ª vuelta presidencial 2025",Kast 2ª v. 2025,%,dic 2025,servel25,Porcentaje sobre votos válidos. Jara obtuvo el complemento a 100%. Disponible para 20 de 33 comunas.,
+dif_kast_21_25,Electoral,Cambio del voto Kast entre las 2ª vueltas 2021 y 2025,Δ Kast 21→25,pp,2021–2025,servel25,"Puntos porcentuales: % Kast 2025 menos % Kast 2021, ambos sobre votos válidos.",
+kast_2021_2v,Electoral,"Votos de Kast, 2ª vuelta presidencial 2021",Kast 2ª v. 2021,%,dic 2021,servel,Sobre votos válidos. Boric obtuvo el complemento a 100%.,
+boric_2021_2v,Electoral,"Votos de Boric, 2ª vuelta presidencial 2021",Boric 2ª v. 2021,%,dic 2021,servel,Sobre votos válidos.,
+kast_2021_1v,Electoral,"Votos de Kast, 1ª vuelta presidencial 2021",Kast 1ª v. 2021,%,nov 2021,servel,Sobre votos válidos.,
+boric_2021_1v,Electoral,"Votos de Boric, 1ª vuelta presidencial 2021",Boric 1ª v. 2021,%,nov 2021,servel,Sobre votos válidos.,
+parisi_2021_1v,Electoral,"Votos de Parisi, 1ª vuelta presidencial 2021",Parisi 1ª v. 2021,%,nov 2021,servel,Sobre votos válidos.,
+apruebo_2020,Electoral,"Apruebo, plebiscito de entrada 2020",Apruebo 2020,%,oct 2020,servel,Sobre votos válidos. Voto voluntario.,
+rechazo_2022,Electoral,"Rechazo, plebiscito de salida 2022",Rechazo 2022,%,sep 2022,servel,Sobre votos válidos. Primer proceso con voto obligatorio.,
+encontra_2023,Electoral,"En contra, plebiscito constitucional 2023",En contra 2023,%,dic 2023,servel,Sobre votos válidos.,
+votos_2021_2v,Electoral,"Votos emitidos, 2ª vuelta presidencial 2021",Votos 2021,,dic 2021,servel,"Total de votos, incluidos blancos y nulos.",si
+poblacion,Población,Población censada,Población,,2024,censo,Personas censadas.,si
+pct_65,Población,Personas de 65 años o más,65+ años,%,2024,censo,Porcentaje de la población censada.,
+pct_0_14,Población,Niños y niñas de 0 a 14 años,0–14 años,%,2024,censo,Porcentaje de la población censada.,
+pct_indigena,Población,Población que pertenece a un pueblo indígena,Pueblos indígenas,%,2024,censo,"Personas que se consideran pertenecientes a un pueblo indígena u originario, sobre la población censada.",
+pct_inmigrante,Población,Inmigrantes internacionales,Inmigrantes,%,2024,censo,Personas nacidas fuera de Chile. El INE no publica el dato en comunas con cifras muy pequeñas.,
+pct_rural,Población,Población rural,Ruralidad,%,2023,sinim,Porcentaje de población rural informado al SINIM.,
+pobreza_ingresos,Pobreza y vivienda,Pobreza por ingresos,Pobreza ingresos,%,2022,sae,"Tasa estimada de personas en pobreza por ingresos, metodología de estimación para áreas pequeñas (SAE) sobre CASEN 2022.",
+pobreza_multi,Pobreza y vivienda,Pobreza multidimensional,Pobreza multidim.,%,2022,sae,"Tasa estimada de personas en pobreza multidimensional (SAE, CASEN 2022).",
+pct_irrecup,Pobreza y vivienda,Viviendas irrecuperables,Viv. irrecuperables,%,2024,censo,"Viviendas particulares ocupadas que requieren reemplazo, sobre el total con moradores presentes.",
+hog_campamento,Pobreza y vivienda,Hogares en campamentos por cada 1.000 hogares,Hog. en campamentos,‰,2024,minvu,Hogares catastrados en campamentos por cada 1.000 hogares censados.,
+campamentos,Pobreza y vivienda,Campamentos catastrados,N° campamentos,,2024,minvu,Número de campamentos en la comuna.,si
+pct_lena,Pobreza y vivienda,Hogares que se calefaccionan con leña,Calefacción a leña,%,2024,censo,Fuente principal de calefacción del hogar.,
+pct_internet,Pobreza y vivienda,Hogares con internet fija,Internet fija,%,2024,censo,Hogares que declaran disponer de internet fija.,
+escolaridad,Educación,Años de escolaridad promedio (18 años o más),Escolaridad,años,2024,censo,Promedio de años de estudio de la población de 18 años o más.,
+pct_superior,Educación,Personas con educación superior,Ed. superior,%,2024,censo,"Nivel educativo más alto alcanzado es superior, sobre toda la población censada (incluye menores).",
+dmcs_tasa,Seguridad,Delitos de mayor connotación social por cada 1.000 habitantes,Delitos (DMCS),‰,2025,cead,"Casos policiales ene–dic 2025: homicidios, violaciones, robos, hurtos y lesiones, por cada 1.000 habitantes (población Censo 2024).",
+vif_tasa,Seguridad,Violencia intrafamiliar por cada 1.000 habitantes,VIF,‰,2025,cead,Casos policiales de violencia intrafamiliar ene–dic 2025.,
+dep_fcm,Municipio,Dependencia del Fondo Común Municipal,Dependencia FCM,%,2023,sinim,Peso del Fondo Común Municipal sobre los ingresos propios. Más alto significa un municipio más dependiente de transferencias.,
+ipp_pc,Municipio,Ingresos propios permanentes por habitante,IPP por hab.,M$,2023,sinim,Miles de pesos por habitante.,si
+org_comunitarias,Municipio,Organizaciones comunitarias por cada 1.000 habitantes,Org. comunitarias,‰,2023,sinim,Organizaciones comunitarias registradas (SINIM 2023) por cada 1.000 habitantes (Censo 2024).,

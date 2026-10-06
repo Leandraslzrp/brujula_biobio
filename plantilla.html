@@ -1,0 +1,522 @@
+<title>/*TITULO*/</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=Source+Sans+3:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: control bar over a map + ficha comunal split; cruce de datos y tabla debajo; fuentes al pie. */
+:root {
+  --bg: #f3f6f7; --panel: #ffffff; --ink: #0e1a1f; --ink-2: #4a5a61; --ink-3: #7b8a90;
+  --line: #d9e1e4; --accent: #0f6f7c; --accent-soft: #e0eff1; --nodata: #e7e9e8; --hl: #e0592a;
+  --s1: #cde2fb; --s2: #9ec5f4; --s3: #6da7ec; --s4: #3987e5; --s5: #256abf; --s6: #184f95; --s7: #0d366b;
+  --c1: #2a78d6; --c2: #eb6834; --c3: #1baf7a;
+  --f-display: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0d1316; --panel: #151d21; --ink: #eaf1f3; --ink-2: #a9b8be; --ink-3: #7d8d93;
+  --line: #2a363b; --accent: #5cc3cf; --accent-soft: #17323a; --nodata: #2a3236; --hl: #ff7a45;
+  --s1: #cde2fb; --s2: #9ec5f4; --s3: #6da7ec; --s4: #3987e5; --s5: #256abf; --s6: #184f95; --s7: #104281;
+  --c1: #3987e5; --c2: #d95926; --c3: #199e70; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0d1316; --panel: #151d21; --ink: #eaf1f3; --ink-2: #a9b8be; --ink-3: #7d8d93;
+  --line: #2a363b; --accent: #5cc3cf; --accent-soft: #17323a; --nodata: #2a3236; --hl: #ff7a45;
+  --s1: #cde2fb; --s2: #9ec5f4; --s3: #6da7ec; --s4: #3987e5; --s5: #256abf; --s6: #184f95; --s7: #104281;
+  --c1: #3987e5; --c2: #d95926; --c3: #199e70; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--f-body); }
+.wrap { max-width: 1280px; margin: 0 auto; padding-inline: 16px; padding-block: 20px 48px; display: grid; gap: 20px; }
+header.top { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; border-bottom: 2px solid var(--ink); padding-bottom: 12px; }
+header.top h1 { font: 800 clamp(26px, 4vw, 40px)/1 var(--f-display); font-stretch: 78%; letter-spacing: -0.01em; margin: 0; text-transform: uppercase; }
+header.top h1 span { color: var(--accent); }
+header.top p { margin: 4px 0 0; color: var(--ink-2); max-width: 62ch; text-wrap: pretty; }
+.meta { font: 12px/1.4 var(--f-mono); color: var(--ink-3); text-align: right; }
+.eyebrow { font: 600 11px/1 var(--f-body); letter-spacing: .09em; text-transform: uppercase; color: var(--ink-3); }
+h2 { font: 700 20px/1.15 var(--f-display); font-stretch: 85%; margin: 0; text-wrap: balance; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 16px; min-width: 0; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: end; }
+.field { display: grid; gap: 4px; min-width: 0; max-width: 100%; }
+.field select { width: 100%; }
+.controls > .field { flex: 0 1 auto; }
+select, button { font: 600 14px var(--f-body); color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 7px 10px; max-width: 100%; }
+select:focus-visible, button:focus-visible, th:focus-visible, path:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button { cursor: pointer; }
+.seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.seg button { border: 0; border-radius: 0; font-weight: 600; padding: 7px 11px; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--panel); }
+.main { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 900px) { .main { grid-template-columns: 1fr; } }
+.mapbox { position: relative; }
+#map { width: 100%; height: auto; display: block; aspect-ratio: 1 / 1.02; max-width: 100%; touch-action: none; }
+#map path.c { stroke: var(--panel); stroke-width: .7; cursor: pointer; transition: opacity .15s; vector-effect: non-scaling-stroke; }
+#map path.c.dim { opacity: .28; }
+#map path.sel { fill: none; stroke: var(--hl); stroke-width: 2.5; pointer-events: none; vector-effect: non-scaling-stroke; }
+#map path.prov { fill: none; stroke: var(--ink); stroke-width: 1.3; pointer-events: none; vector-effect: non-scaling-stroke; opacity: .7; }
+.ind-head { display: grid; gap: 4px; margin-bottom: 8px; }
+.ind-head .src { font-size: 13px; color: var(--ink-2); }
+.legend { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-top: 10px; font: 12px var(--f-mono); color: var(--ink-2); }
+.ramp { display: flex; gap: 2px; }
+.ramp i { display: block; width: 34px; height: 10px; border-radius: 2px; }
+.ramp-labels { display: flex; justify-content: space-between; font: 11px var(--f-mono); color: var(--ink-3); width: calc(7 * 34px + 12px); }
+.nd { display: inline-flex; align-items: center; gap: 6px; }
+.nd i { width: 14px; height: 10px; border-radius: 2px; background: var(--nodata); display: inline-block; border: 1px solid var(--line); }
+.zoomhint { position: absolute; right: 8px; bottom: 8px; display: flex; gap: 4px; }
+.zoomhint button { padding: 4px 9px; font: 600 15px var(--f-mono); }
+.tip { position: fixed; pointer-events: none; z-index: 10; background: var(--ink); color: var(--panel); padding: 7px 10px; border-radius: 4px; font: 13px/1.35 var(--f-body); max-width: 260px; box-shadow: 0 4px 14px rgb(0 0 0 / .18); }
+.tip b { font-family: var(--f-display); font-size: 15px; }
+.tip .v { font: 500 13px var(--f-mono); }
+/* ficha */
+.ficha h2 { font-size: 28px; }
+.ficha .sub { color: var(--ink-2); font-size: 14px; margin: 2px 0 12px; }
+.kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 14px; }
+.kpi { border-top: 2px solid var(--ink); padding-top: 6px; min-width: 0; }
+.kpi .n { font: 600 20px/1.1 var(--f-mono); font-variant-numeric: tabular-nums; }
+.kpi .l { font-size: 12px; color: var(--ink-2); line-height: 1.25; }
+.grp { margin-top: 12px; }
+.grp > .eyebrow { display: block; margin-bottom: 4px; }
+.row { display: grid; grid-template-columns: minmax(0, 1fr) 70px 92px; gap: 10px; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--line); cursor: pointer; }
+.row:hover { background: var(--accent-soft); }
+.row.on .lab { color: var(--accent); font-weight: 600; }
+.row .lab { font-size: 13px; line-height: 1.25; min-width: 0; }
+.row .val { font: 500 13px var(--f-mono); text-align: right; font-variant-numeric: tabular-nums; }
+.row svg { width: 92px; height: 14px; display: block; }
+.strip-dot { fill: var(--ink-3); opacity: .45; }
+.strip-me { fill: var(--hl); }
+.strip-axis { stroke: var(--line); }
+.hint { font-size: 12px; color: var(--ink-3); margin-top: 10px; }
+/* cruce */
+.cross { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 20px; }
+@media (max-width: 900px) { .cross { grid-template-columns: 1fr; } }
+#scatter { width: 100%; height: auto; display: block; max-width: 100%; }
+#scatter .grid line { stroke: var(--line); }
+#scatter .axis text { fill: var(--ink-3); font: 11px var(--f-mono); }
+#scatter .axis-title { fill: var(--ink-2); font: 600 12px var(--f-body); }
+#scatter circle { stroke: var(--panel); stroke-width: 2; cursor: pointer; }
+#scatter circle.me { stroke: var(--hl); stroke-width: 3; }
+#scatter .lbl { fill: var(--ink-2); font: 11px var(--f-body); pointer-events: none; }
+#scatter .trend { stroke: var(--ink-3); stroke-width: 1.5; stroke-dasharray: 5 4; fill: none; }
+.rbox .r { font: 600 44px/1 var(--f-mono); font-variant-numeric: tabular-nums; }
+.rbox p { color: var(--ink-2); font-size: 14px; margin: 6px 0 0; text-wrap: pretty; }
+.catleg { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: var(--ink-2); margin-top: 8px; }
+.catleg span { display: inline-flex; align-items: center; gap: 6px; }
+.catleg i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+/* tabla */
+.tablebox { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; min-width: 760px; }
+th, td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+th { font: 600 12px var(--f-body); color: var(--ink-2); cursor: pointer; user-select: none; vertical-align: bottom; white-space: normal; min-width: 72px; }
+th[aria-sort="ascending"]::after { content: " ▲"; font-size: 9px; }
+th[aria-sort="descending"]::after { content: " ▼"; font-size: 9px; }
+td { font-family: var(--f-mono); }
+th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align: left; font-family: var(--f-body); }
+tbody tr { cursor: pointer; }
+tbody tr:hover { background: var(--accent-soft); }
+tbody tr.on { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--hl); }
+.tbl-bar { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: end; margin-bottom: 10px; }
+.toast { font-size: 13px; color: var(--accent); }
+.sources { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px 24px; font-size: 13px; color: var(--ink-2); }
+.sources h3 { font: 700 14px var(--f-display); font-stretch: 85%; color: var(--ink); margin: 0 0 2px; }
+.sources p { margin: 0; }
+.sources a { color: var(--accent); }
+.note { border-left: 3px solid var(--hl); padding: 8px 12px; background: var(--accent-soft); font-size: 13px; color: var(--ink-2); border-radius: 0 4px 4px 0; }
+/* Estilo Brújula Electoral: encabezado destacado, tarjetas suaves y botones redondeados */
+body { background: radial-gradient(1200px 500px at 50% -120px, var(--accent-soft), transparent 70%), var(--bg); margin: 0; }
+header.top { background: linear-gradient(135deg, #0b3d4a 0%, #0f6f7c 55%, #1c8f8a 100%); color: #fff; border: 0; border-radius: 16px; padding: 28px 28px 24px; box-shadow: 0 12px 32px rgb(11 61 74 / .25); }
+header.top h1 { font-size: clamp(32px, 5.5vw, 56px); font-stretch: 85%; letter-spacing: .02em; display: flex; align-items: center; gap: 14px; }
+header.top h1 .brujula { font-size: .8em; display: inline-grid; place-items: center; width: 1.35em; height: 1.35em; border-radius: 50%; background: rgb(255 255 255 / .14); }
+header.top p { color: rgb(255 255 255 / .85); font-size: 16px; margin-top: 10px; }
+header.top .eyebrow { color: rgb(255 255 255 / .7); }
+header.top .meta { color: rgb(255 255 255 / .7); }
+header.top .meta a { color: #fff !important; font-weight: 600; }
+.panel { border-radius: 14px; padding: 20px; box-shadow: 0 1px 2px rgb(0 0 0 / .04), 0 6px 20px rgb(15 50 60 / .06); }
+h2 { font-size: 22px; }
+.eyebrow { color: var(--accent); }
+select, button { border-radius: 8px; transition: background .15s, border-color .15s, box-shadow .15s; }
+select:hover, button:hover { border-color: var(--accent); }
+.seg { border-radius: 999px; }
+.seg button { padding: 7px 14px; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+#copy { background: var(--accent); color: #fff; border-color: var(--accent); }
+.kpi { border-top: 3px solid var(--accent); }
+.zoomhint button { border-radius: 8px; box-shadow: 0 2px 6px rgb(0 0 0 / .08); }
+.tip { border-radius: 8px; }
+thead th { position: sticky; top: 0; background: var(--panel); }
+tbody tr:nth-child(even) { background: color-mix(in srgb, var(--bg) 60%, transparent); }
+tbody tr:hover, tbody tr.on { background: var(--accent-soft); }
+.note { border-radius: 0 8px 8px 0; }
+@media (max-width: 600px) { header.top { padding: 20px 18px; } }
+.alerta { --al-bg: #fff6e5; --al-line: #f0b94d; --al-ink: #5c3d00; display: flex; gap: 14px; background: var(--al-bg); color: var(--al-ink); border: 1px solid var(--al-line); border-left: 6px solid var(--al-line); border-radius: 14px; padding: 16px 20px; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .alerta { --al-bg: #2e2410; --al-line: #c9922a; --al-ink: #f5e2bd; } }
+:root[data-theme="dark"] .alerta { --al-bg: #2e2410; --al-line: #c9922a; --al-ink: #f5e2bd; }
+.alerta[hidden] { display: none; }
+.alerta-ico { font-size: 26px; line-height: 1; }
+.alerta h2 { font-size: 19px; margin-bottom: 4px; color: inherit; }
+.alerta p { margin: 0; font-size: 14px; }
+.alerta ul { margin: 8px 0; padding-left: 18px; font-size: 14px; display: grid; gap: 4px; }
+.alerta li b { font-weight: 600; }
+.alerta .comunas { opacity: .85; }
+.alerta-pie { opacity: .85; }
+.alerta code { font: 12px var(--f-mono); background: rgb(0 0 0 / .06); padding: 1px 5px; border-radius: 4px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">Región del Biobío · 33 comunas · 3 provincias</div>
+      <h1><span class="brujula" aria-hidden="true">🧭</span>/*TITULO*/</h1>
+      <p>Resultados electorales y condiciones sociales por comuna, en un solo mapa. Elige un indicador, toca una comuna para ver su ficha y cruza dos variables para ver cómo se relacionan.</p>
+    </div>
+    <div class="meta">Datos: SERVEL · INE Censo 2024 · MDSF · SINIM · CEAD · MINVU<br>Actualizado: <span id="fecha"></span><span id="repo-wrap"> · <a id="repo" style="color:var(--accent)" target="_blank" rel="noopener">Código abierto en GitHub</a></span></div>
+  </header>
+
+  <section class="alerta" id="alerta" role="note" aria-label="Datos faltantes" hidden>
+    <div class="alerta-ico" aria-hidden="true">⚠️</div>
+    <div>
+      <h2>Transparencia: datos que faltan en la base</h2>
+      <p id="alerta-resumen"></p>
+      <ul id="alerta-lista"></ul>
+      <p class="alerta-pie">En el mapa y la tabla estas comunas aparecen en gris como "sin dato". Si conoces la cifra oficial, agrégala en <code>datos/comunas_biobio.csv</code>.</p>
+    </div>
+  </section>
+
+  <section class="panel controls" aria-label="Controles del mapa">
+    <div class="field"><label class="eyebrow" for="ind">Indicador en el mapa</label><select id="ind"></select></div>
+    <div class="field"><span class="eyebrow">Resaltar</span>
+      <div class="seg" id="filt" role="group" aria-label="Resaltar provincia o distrito">
+        <button data-f="all" aria-pressed="true">Toda la región</button>
+        <button data-f="Concepción">Prov. Concepción</button>
+        <button data-f="Arauco">Prov. Arauco</button>
+        <button data-f="Biobío">Prov. Biobío</button>
+        <button data-f="d20">Distrito 20</button>
+        <button data-f="d21">Distrito 21</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="main">
+    <section class="panel">
+      <div class="ind-head">
+        <div class="eyebrow" id="ind-group"></div>
+        <h2 id="ind-title"></h2>
+        <div class="src" id="ind-src"></div>
+      </div>
+      <div class="mapbox">
+        <svg id="map" role="img" aria-label="Mapa coroplético de las comunas de la Región del Biobío"></svg>
+        <div class="zoomhint"><button id="zin" aria-label="Acercar">+</button><button id="zout" aria-label="Alejar">−</button><button id="zreset" aria-label="Restablecer vista">⟲</button></div>
+      </div>
+      <div class="legend">
+        <div><div class="ramp" id="ramp"></div><div class="ramp-labels" id="ramp-labels"></div></div>
+        <span class="nd"><i></i>Sin dato</span>
+        <span>Colores por séptimos (cuantiles) entre las comunas con dato</span>
+      </div>
+    </section>
+
+    <aside class="panel ficha" id="ficha" aria-live="polite"></aside>
+  </div>
+
+  <section class="panel">
+    <div class="eyebrow">Cruce de datos</div>
+    <h2>¿Cómo se relaciona el voto con las condiciones sociales?</h2>
+    <div class="controls" style="margin:12px 0">
+      <div class="field"><label class="eyebrow" for="xsel">Eje horizontal</label><select id="xsel"></select></div>
+      <div class="field"><label class="eyebrow" for="ysel">Eje vertical</label><select id="ysel"></select></div>
+      <button id="swap" type="button">Intercambiar ejes</button>
+    </div>
+    <div class="cross">
+      <svg id="scatter" role="img" aria-label="Gráfico de dispersión entre dos indicadores comunales"></svg>
+      <div class="rbox">
+        <div class="eyebrow">Correlación de Pearson (r)</div>
+        <div class="r" id="rval"></div>
+        <p id="rtext"></p>
+        <div class="catleg" id="catleg"></div>
+        <p class="hint">Cada punto es una comuna. La línea punteada es la tendencia lineal. Una correlación muestra que dos datos se mueven juntos, no que uno cause el otro.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="tbl-bar">
+      <div><div class="eyebrow">Base de datos</div><h2>Todas las comunas</h2></div>
+      <div style="display:flex;gap:10px;align-items:center"><span class="toast" id="toast" role="status"></span><button id="copy" type="button">Copiar tabla completa (CSV)</button></div>
+    </div>
+    <div class="tablebox"><table id="tbl"><thead></thead><tbody></tbody></table></div>
+    <p class="hint">Toca un encabezado para ordenar. Toca una fila para abrir la ficha de la comuna. El botón copia todos los indicadores, listos para pegar en Excel o Google Sheets.</p>
+  </section>
+
+  <section class="panel">
+    <div class="eyebrow">Fuentes y notas</div>
+    <h2 style="margin-bottom:12px">De dónde sale cada dato</h2>
+    <div class="note" id="aviso" style="margin-bottom:14px"></div>
+    <div class="sources" id="sources"></div>
+  </section>
+</div>
+<div class="tip" id="tip" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const DATA = /*DATOS*/null;
+const CONFIG = /*CONFIG*/null;
+
+const SRC = /*FUENTES*/null;
+const IND = /*INDICADORES*/null;
+const BY = Object.fromEntries(IND.map(d => [d.id, d]));
+const COM = DATA.comunas;
+const PROVS = ['Concepción', 'Arauco', 'Biobío'];
+const PCOL = { 'Concepción': 'var(--c1)', 'Arauco': 'var(--c2)', 'Biobío': 'var(--c3)' };
+
+const nf = (v, ind, compact) => {
+  if (v == null || isNaN(v)) return '—';
+  const opts = ind.int ? { maximumFractionDigits: 0 } : { minimumFractionDigits: 1, maximumFractionDigits: 1 };
+  let s = v.toLocaleString('es-CL', opts);
+  if (ind.u === 'pp' && v > 0) s = '+' + s;
+  if (compact) return s + (ind.u === '%' ? '%' : '');
+  return s + (ind.u ? (ind.u === '%' ? '%' : ' ' + ind.u) : '');
+};
+const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+
+const state = { ind: store.get('ind') && BY[store.get('ind')] ? store.get('ind') : CONFIG.indicador_inicial, sel: CONFIG.comuna_inicial, filt: 'all',
+  x: CONFIG.cruce_x, y: CONFIG.cruce_y, sortKey: 'poblacion', sortDir: -1 };
+
+// ---------- selects ----------
+function fillSelect(el, val) {
+  el.innerHTML = '';
+  for (const g of [...new Set(IND.map(d => d.g))]) {
+    const og = document.createElement('optgroup'); og.label = g;
+    IND.filter(d => d.g === g).forEach(d => { const o = new Option(`${d.l} (${d.y})`, d.id); og.appendChild(o); });
+    el.appendChild(og);
+  }
+  el.value = val;
+}
+const indSel = document.getElementById('ind'), xSel = document.getElementById('xsel'), ySel = document.getElementById('ysel');
+fillSelect(indSel, state.ind); fillSelect(xSel, state.x); fillSelect(ySel, state.y);
+
+// ---------- map ----------
+const W = 600, H = 612;
+const svg = d3.select('#map').attr('viewBox', `0 0 ${W} ${H}`);
+const proj = d3.geoMercator().fitExtent([[12, 12], [W - 12, H - 12]], DATA.geo);
+const path = d3.geoPath(proj);
+const gRoot = svg.append('g');
+const byCut = Object.fromEntries(COM.map(c => [c.cut, c]));
+const paths = gRoot.selectAll('path.c').data(DATA.geo.features).join('path').attr('class', 'c').attr('d', path)
+  .attr('tabindex', 0).attr('role', 'button').attr('aria-label', d => byCut[d.properties.cut].nombre)
+  .on('mousemove', (ev, d) => showTip(ev, d.properties.cut)).on('mouseleave', hideTip)
+  .on('click', (ev, d) => select(d.properties.cut))
+  .on('keydown', (ev, d) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); select(d.properties.cut); } });
+// province outlines (merged via topology-free approach: draw each province's comunas' outer stroke)
+const provG = gRoot.append('g');
+PROVS.forEach(p => {
+  const fs = DATA.geo.features.filter(f => byCut[f.properties.cut].provincia === p);
+  provG.append('path').attr('class', 'prov').attr('d', path({ type: 'FeatureCollection', features: fs }));
+});
+const selPath = gRoot.append('path').attr('class', 'sel');
+const labG = gRoot.append('g').style('pointer-events', 'none');
+const zoom = d3.zoom().scaleExtent([1, 8]).on('zoom', ev => { gRoot.attr('transform', ev.transform); labG.selectAll('text').attr('font-size', 10 / ev.transform.k); });
+svg.call(zoom);
+document.getElementById('zin').onclick = () => svg.transition().call(zoom.scaleBy, 1.6);
+document.getElementById('zout').onclick = () => svg.transition().call(zoom.scaleBy, 1 / 1.6);
+document.getElementById('zreset').onclick = () => svg.transition().call(zoom.transform, d3.zoomIdentity);
+// etiquetas sobre el mapa (se eligen en construir.py)
+CONFIG.etiquetas_mapa.forEach(n => {
+  const c = COM.find(x => x.nombre === n); if (!c) return; const f = DATA.geo.features.find(f => f.properties.cut === c.cut);
+  const [x, y] = path.centroid(f);
+  labG.append('text').attr('x', x).attr('y', y).attr('text-anchor', 'middle').attr('font-size', 10)
+    .attr('fill', 'var(--ink)').attr('stroke', 'var(--panel)').attr('stroke-width', 3).attr('paint-order', 'stroke')
+    .style('font-family', 'var(--f-body)').style('font-weight', 600).text(n);
+});
+
+const STEPS = ['--s1', '--s2', '--s3', '--s4', '--s5', '--s6', '--s7'].map(v => `var(${v})`);
+let scale;
+function drawMap() {
+  const ind = BY[state.ind];
+  const vals = COM.map(c => c[ind.id]).filter(v => v != null);
+  scale = d3.scaleQuantile().domain(vals).range(STEPS);
+  paths.attr('fill', d => { const v = byCut[d.properties.cut][ind.id]; return v == null ? 'var(--nodata)' : scale(v); })
+    .classed('dim', d => !inFilter(byCut[d.properties.cut]));
+  document.getElementById('ind-group').textContent = ind.g + ' · ' + ind.y;
+  document.getElementById('ind-title').textContent = ind.l;
+  const s = SRC[ind.src];
+  document.getElementById('ind-src').innerHTML = `${ind.n} Fuente: <a href="${s.url}" target="_blank" rel="noopener" style="color:var(--accent)">${s.institucion}</a>.`;
+  document.getElementById('ramp').innerHTML = STEPS.map(c => `<i style="background:${c}"></i>`).join('');
+  const q = [d3.min(vals), ...scale.quantiles(), d3.max(vals)];
+  document.getElementById('ramp-labels').innerHTML = `<span>${nf(q[0], ind, true)}</span><span>${nf(d3.median(vals), ind, true)} mediana</span><span>${nf(q[q.length - 1], ind, true)}</span>`;
+}
+function inFilter(c) {
+  const f = state.filt; if (f === 'all') return true;
+  if (f === 'd20') return c.distrito === 20; if (f === 'd21') return c.distrito === 21;
+  return c.provincia === f;
+}
+const tip = document.getElementById('tip');
+function showTip(ev, cut) {
+  const c = byCut[cut], ind = BY[state.ind];
+  tip.innerHTML = `<b>${c.nombre}</b><br><span style="opacity:.75">Prov. ${c.provincia} · Distrito ${c.distrito}</span><br>${ind.s}: <span class="v">${nf(c[ind.id], ind)}</span>`;
+  tip.hidden = false;
+  const tw = tip.offsetWidth, th = tip.offsetHeight;
+  let x = ev.clientX + 14, y = ev.clientY + 14;
+  if (x + tw > innerWidth - 8) x = ev.clientX - tw - 14;
+  if (y + th > innerHeight - 8) y = ev.clientY - th - 14;
+  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+}
+function hideTip() { tip.hidden = true; }
+
+// ---------- ficha ----------
+function rankOf(id, cut) {
+  const arr = COM.filter(c => c[id] != null).sort((a, b) => b[id] - a[id]);
+  return { r: arr.findIndex(c => c.cut === cut) + 1, n: arr.length };
+}
+function strip(id, cut) {
+  const vals = COM.map(c => c[id]).filter(v => v != null);
+  const x = d3.scaleLinear().domain(d3.extent(vals)).range([4, 88]);
+  const me = byCut[cut][id];
+  return `<svg viewBox="0 0 92 14" aria-hidden="true"><line class="strip-axis" x1="4" x2="88" y1="7" y2="7"/>` +
+    vals.map(v => `<rect class="strip-dot" x="${x(v) - 1}" y="3" width="2" height="8"/>`).join('') +
+    (me != null ? `<circle class="strip-me" cx="${x(me)}" cy="7" r="4"/>` : '') + `</svg>`;
+}
+function drawFicha() {
+  const c = byCut[state.sel];
+  const pr = rankOf('pobreza_multi', c.cut);
+  const k = (id) => `<div class="kpi"><div class="n">${nf(c[id], BY[id], true)}</div><div class="l">${BY[id].s} (${BY[id].y})</div></div>`;
+  let h = `<div class="eyebrow">Ficha comunal · Prov. ${c.provincia} · Distrito ${c.distrito}</div><h2>${c.nombre}</h2>
+    <div class="sub">${c.poblacion.toLocaleString('es-CL')} habitantes (Censo 2024). Ocupa el lugar ${pr.r} de ${pr.n} en pobreza multidimensional.</div>
+    <div class="kpis">${k(c.kast_2025_2v != null ? 'kast_2025_2v' : 'kast_2021_2v')}${k('rechazo_2022')}${k('pobreza_multi')}</div>`;
+  for (const g of [...new Set(IND.map(d => d.g))]) {
+    h += `<div class="grp"><span class="eyebrow">${g}</span>`;
+    IND.filter(d => d.g === g).forEach(d => {
+      const rk = rankOf(d.id, c.cut);
+      h += `<div class="row${d.id === state.ind ? ' on' : ''}" data-id="${d.id}" tabindex="0" role="button" title="${d.l}. ${c[d.id] != null ? 'Lugar ' + rk.r + ' de ' + rk.n + ' (de mayor a menor).' : 'Sin dato.'} Ver en el mapa.">
+        <span class="lab">${d.s}</span><span class="val">${nf(c[d.id], d, true)}</span>${strip(d.id, c.cut)}</div>`;
+    });
+    h += `</div>`;
+  }
+  h += `<p class="hint">Cada franja muestra las 33 comunas; el punto naranjo es ${c.nombre}. Toca un indicador para verlo en el mapa.</p>`;
+  const el = document.getElementById('ficha'); el.innerHTML = h;
+  el.querySelectorAll('.row').forEach(r => {
+    const go = () => setInd(r.dataset.id);
+    r.onclick = go; r.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } };
+  });
+  const f = DATA.geo.features.find(f => f.properties.cut === c.cut);
+  selPath.attr('d', path(f));
+}
+
+// ---------- scatter ----------
+const SW = 640, SH = 420, M = { l: 52, r: 16, t: 14, b: 46 };
+const ss = d3.select('#scatter').attr('viewBox', `0 0 ${SW} ${SH}`);
+function drawScatter() {
+  const X = BY[state.x], Y = BY[state.y];
+  const pts = COM.filter(c => c[X.id] != null && c[Y.id] != null);
+  const pad = (e) => { const d = (e[1] - e[0]) * 0.06 || 1; return [e[0] - d, e[1] + d]; };
+  const x = d3.scaleLinear().domain(pad(d3.extent(pts, c => c[X.id]))).nice().range([M.l, SW - M.r]);
+  const y = d3.scaleLinear().domain(pad(d3.extent(pts, c => c[Y.id]))).nice().range([SH - M.b, M.t]);
+  ss.selectAll('*').remove();
+  const gx = ss.append('g').attr('class', 'grid');
+  y.ticks(6).forEach(t => gx.append('line').attr('x1', M.l).attr('x2', SW - M.r).attr('y1', y(t)).attr('y2', y(t)));
+  const ax = ss.append('g').attr('class', 'axis');
+  x.ticks(7).forEach(t => ax.append('text').attr('x', x(t)).attr('y', SH - M.b + 16).attr('text-anchor', 'middle').text(t.toLocaleString('es-CL')));
+  y.ticks(6).forEach(t => ax.append('text').attr('x', M.l - 8).attr('y', y(t) + 4).attr('text-anchor', 'end').text(t.toLocaleString('es-CL')));
+  ss.append('text').attr('class', 'axis-title').attr('x', SW - M.r).attr('y', SH - 8).attr('text-anchor', 'end').text(`${X.s} (${X.u || 'n'}, ${X.y}) →`);
+  ss.append('text').attr('class', 'axis-title').attr('x', M.l).attr('y', M.t - 2).attr('dy', '-0.1em').attr('text-anchor', 'start').attr('transform', '').text('');
+  ss.append('text').attr('class', 'axis-title').attr('transform', `translate(14,${M.t}) rotate(-90)`).attr('text-anchor', 'end').text(`${Y.s} (${Y.u || 'n'}, ${Y.y}) →`);
+  // regression
+  const xs = pts.map(c => c[X.id]), ys = pts.map(c => c[Y.id]);
+  const mx = d3.mean(xs), my = d3.mean(ys);
+  const sxy = d3.sum(xs.map((v, i) => (v - mx) * (ys[i] - my))), sxx = d3.sum(xs.map(v => (v - mx) ** 2)), syy = d3.sum(ys.map(v => (v - my) ** 2));
+  const r = sxy / Math.sqrt(sxx * syy), b = sxy / sxx, a = my - b * mx;
+  if (pts.length > 2 && isFinite(b)) {
+    const [x0, x1] = x.domain();
+    ss.append('path').attr('class', 'trend').attr('d', `M${x(x0)},${y(a + b * x0)}L${x(x1)},${y(a + b * x1)}`)
+      .attr('clip-path', 'url(#clip)');
+    ss.append('clipPath').attr('id', 'clip').append('rect').attr('x', M.l).attr('y', M.t).attr('width', SW - M.l - M.r).attr('height', SH - M.t - M.b);
+  }
+  const big = new Set(pts.slice().sort((p, q) => Math.abs(q[Y.id] - (a + b * q[X.id])) - Math.abs(p[Y.id] - (a + b * p[X.id]))).slice(0, 4).map(c => c.cut));
+  big.add(state.sel);
+  ss.append('g').selectAll('circle').data(pts).join('circle')
+    .attr('cx', c => x(c[X.id])).attr('cy', c => y(c[Y.id])).attr('r', c => c.cut === state.sel ? 8 : 6)
+    .attr('fill', c => PCOL[c.provincia]).classed('me', c => c.cut === state.sel)
+    .attr('opacity', c => inFilter(c) ? 1 : .25)
+    .on('mousemove', (ev, c) => { tip.innerHTML = `<b>${c.nombre}</b><br>${X.s}: <span class="v">${nf(c[X.id], X)}</span><br>${Y.s}: <span class="v">${nf(c[Y.id], Y)}</span>`; tip.hidden = false; tip.style.left = Math.min(ev.clientX + 14, innerWidth - tip.offsetWidth - 8) + 'px'; tip.style.top = (ev.clientY + 14) + 'px'; })
+    .on('mouseleave', hideTip).on('click', (ev, c) => select(c.cut));
+  ss.append('g').selectAll('text').data(pts.filter(c => big.has(c.cut))).join('text').attr('class', 'lbl')
+    .attr('x', c => x(c[X.id]) + (x(c[X.id]) > SW - 110 ? -10 : 10)).attr('y', c => y(c[Y.id]) + 4)
+    .attr('text-anchor', c => x(c[X.id]) > SW - 110 ? 'end' : 'start')
+    .style('font-weight', c => c.cut === state.sel ? 700 : 400).text(c => c.nombre);
+  document.getElementById('rval').textContent = isFinite(r) ? r.toLocaleString('es-CL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—';
+  const ar = Math.abs(r), str = ar >= .7 ? 'fuerte' : ar >= .4 ? 'moderada' : ar >= .2 ? 'débil' : 'casi nula';
+  const dir = r > 0 ? 'positiva: donde sube uno, tiende a subir el otro' : 'negativa: donde sube uno, tiende a bajar el otro';
+  document.getElementById('rtext').textContent = ar < .2 ? `Relación casi nula entre ${X.s.toLowerCase()} y ${Y.s.toLowerCase()} (${pts.length} comunas).` : `Relación ${str} y ${dir} (${pts.length} comunas con ambos datos).`;
+}
+document.getElementById('catleg').innerHTML = PROVS.map(p => `<span><i style="background:${PCOL[p]}"></i>Prov. ${p}</span>`).join('');
+
+// ---------- tabla ----------
+const TCOLS = CONFIG.columnas_tabla.filter(id => BY[id]);
+function drawTable() {
+  const th = `<tr><th data-k="nombre" tabindex="0">Comuna</th><th data-k="provincia" tabindex="0">Provincia</th>` +
+    TCOLS.map(id => `<th data-k="${id}" tabindex="0" title="${BY[id].l} (${BY[id].y})">${BY[id].s}${BY[id].u ? ' (' + BY[id].u + ')' : ''}</th>`).join('') + '</tr>';
+  const tbl = document.getElementById('tbl');
+  tbl.tHead.innerHTML = th;
+  tbl.tHead.querySelectorAll('th').forEach(t => {
+    if (t.dataset.k === state.sortKey) t.setAttribute('aria-sort', state.sortDir > 0 ? 'ascending' : 'descending');
+    const go = () => { if (state.sortKey === t.dataset.k) state.sortDir *= -1; else { state.sortKey = t.dataset.k; state.sortDir = (t.dataset.k === 'nombre' || t.dataset.k === 'provincia') ? 1 : -1; } drawTable(); };
+    t.onclick = go; t.onkeydown = e => { if (e.key === 'Enter') go(); };
+  });
+  const k = state.sortKey;
+  const rows = COM.slice().sort((a, b) => {
+    const va = a[k], vb = b[k];
+    if (va == null) return 1; if (vb == null) return -1;
+    return (typeof va === 'string' ? va.localeCompare(vb, 'es') : va - vb) * state.sortDir;
+  });
+  tbl.tBodies[0].innerHTML = rows.map(c => `<tr data-cut="${c.cut}" class="${c.cut === state.sel ? 'on' : ''}"><td>${c.nombre}</td><td>${c.provincia}</td>` +
+    TCOLS.map(id => `<td>${nf(c[id], BY[id], true)}</td>`).join('') + '</tr>').join('');
+  tbl.tBodies[0].querySelectorAll('tr').forEach(tr => tr.onclick = () => { select(+tr.dataset.cut); document.getElementById('ficha').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); });
+}
+document.getElementById('copy').onclick = () => {
+  const head = ['cut', 'comuna', 'provincia', 'distrito', ...IND.map(d => `${d.id}`)];
+  const lines = [head.join(',')].concat(COM.map(c => [c.cut, `"${c.nombre}"`, c.provincia, c.distrito, ...IND.map(d => c[d.id] ?? '')].join(',')));
+  const txt = lines.join('\n'), t = document.getElementById('toast');
+  const done = (m) => { t.textContent = m; setTimeout(() => t.textContent = '', 3000); };
+  try {
+    navigator.clipboard.writeText(txt).then(() => done('Tabla copiada'), () => fallback());
+  } catch (e) { fallback(); }
+  function fallback() {
+    const ta = document.createElement('textarea'); ta.value = txt; ta.style.cssText = 'width:100%;height:120px;margin-top:8px;font:12px var(--f-mono)';
+    document.querySelector('.tablebox').after(ta); ta.select(); done('Selecciona y copia el texto de abajo');
+  }
+};
+
+// ---------- fuentes ----------
+document.getElementById('sources').innerHTML = Object.values(SRC).map(s =>
+  `<div><h3>${s.titulo}</h3><p>${s.descripcion} <a href="${s.url}" target="_blank" rel="noopener">Ver fuente</a></p></div>`).join('');
+
+// ---------- wiring ----------
+function setInd(id) { state.ind = id; indSel.value = id; store.set('ind', id); drawMap(); drawFicha(); }
+function select(cut) { state.sel = cut; drawFicha(); drawScatter(); drawTable(); }
+indSel.onchange = () => setInd(indSel.value);
+xSel.onchange = () => { state.x = xSel.value; drawScatter(); };
+ySel.onchange = () => { state.y = ySel.value; drawScatter(); };
+document.getElementById('swap').onclick = () => { [state.x, state.y] = [state.y, state.x]; xSel.value = state.x; ySel.value = state.y; drawScatter(); };
+document.querySelectorAll('#filt button').forEach(b => b.onclick = () => {
+  state.filt = b.dataset.f; document.querySelectorAll('#filt button').forEach(o => o.setAttribute('aria-pressed', o === b));
+  drawMap(); drawScatter();
+});
+// ---------- alerta de datos faltantes ----------
+(() => {
+  const F = CONFIG.faltantes || [];
+  if (!F.length) return;
+  const total = COM.length;
+  document.getElementById('alerta-resumen').textContent =
+    `${F.length} ${F.length === 1 ? 'indicador tiene' : 'indicadores tienen'} comunas sin dato. Las mostramos para que sepas qué está incompleto:`;
+  const ul = document.getElementById('alerta-lista');
+  F.forEach(f => {
+    const li = document.createElement('li');
+    const b = document.createElement('b'); b.textContent = `${f.nombre} (${f.anio})`;
+    const s = document.createElement('span'); s.className = 'comunas';
+    s.textContent = `: falta en ${f.comunas.length} de ${total} comunas (${f.comunas.join(', ')}).`;
+    li.append(b, s); ul.appendChild(li);
+  });
+  document.getElementById('alerta').hidden = false;
+})();
+
+const av = document.getElementById('aviso'); if (CONFIG.aviso) av.textContent = CONFIG.aviso; else av.hidden = true;
+document.getElementById('fecha').textContent = CONFIG.fecha;
+if (CONFIG.repositorio) document.getElementById('repo').href = CONFIG.repositorio; else document.getElementById('repo-wrap').hidden = true;
+drawMap(); drawFicha(); drawScatter(); drawTable();
+</script>
