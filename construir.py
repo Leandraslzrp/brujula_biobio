@@ -32,6 +32,9 @@ CONFIGURACION = {
     "titulo": "Brújula Electoral",
     # Enlace al repositorio (aparece arriba a la derecha). Déjalo vacío para ocultarlo.
     "repositorio": "https://github.com/Leandraslzrp/brujula_biobio",
+    # Enlace al formulario (Tally) para reportar errores sin cuenta de GitHub.
+    # Déjalo vacío ("") para ocultar el botón.
+    "formulario": "https://tally.so/r/ZjpvBy",
     # Indicador que se ve en el mapa al abrir la página (usa el "id" de indicadores.csv)
     "indicador_inicial": "kast_2021_2v",
     # Comuna seleccionada al abrir (código CUT)
@@ -123,6 +126,7 @@ def cargar_indicadores(fuentes):
             "src": fila["fuente_id"],
             "n": fila["nota"],
             "int": fila["entero"].strip().lower() == "si",
+            "mf": (fila.get("motivo_faltante") or "").strip(),
         })
     return indicadores
 
@@ -133,7 +137,15 @@ def buscar_faltantes(comunas, indicadores):
     for ind in indicadores:
         sin_dato = [c["nombre"] for c in comunas if ind["id"] not in c]
         if sin_dato:
-            faltantes.append({"id": ind["id"], "nombre": ind["l"], "anio": ind["y"], "comunas": sin_dato})
+            # Cobertura por provincia: si los faltantes se concentran en una provincia, los promedios quedan sesgados
+            cobertura = {}
+            for c in comunas:
+                con, total = cobertura.get(c["provincia"], (0, 0))
+                cobertura[c["provincia"]] = (con + (ind["id"] in c), total + 1)
+            faltantes.append({
+                "id": ind["id"], "nombre": ind["l"], "anio": ind["y"], "motivo": ind["mf"],
+                "comunas": sin_dato, "cobertura": cobertura,
+            })
     return faltantes
 
 

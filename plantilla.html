@@ -156,6 +156,34 @@ tbody tr:hover, tbody tr.on { background: var(--accent-soft); }
 .alerta li b { font-weight: 600; }
 .alerta .comunas { opacity: .85; }
 .alerta-pie { opacity: .85; }
+.sellos { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.sellos span { font: 600 13px var(--f-body); background: rgb(255 255 255 / .14); border: 1px solid rgb(255 255 255 / .25); border-radius: 999px; padding: 5px 12px; }
+.atajos { display: flex; flex-wrap: wrap; gap: 8px; position: sticky; top: 8px; z-index: 5; background: color-mix(in srgb, var(--panel) 88%, transparent); backdrop-filter: blur(8px); border: 1px solid var(--line); border-radius: 999px; padding: 6px; justify-self: center; box-shadow: 0 4px 14px rgb(0 0 0 / .06); }
+.atajos a { font: 600 14px var(--f-body); color: var(--ink-2); text-decoration: none; padding: 6px 14px; border-radius: 999px; }
+.atajos a:hover { background: var(--accent-soft); color: var(--accent); }
+.atajos a.destacado { background: var(--accent); color: #fff; }
+[id^="sec-"] { scroll-margin-top: 70px; }
+.alerta a { color: inherit; font-weight: 700; }
+.colabora { border: 2px solid var(--accent); }
+.colabora-intro { color: var(--ink-2); font-size: 15px; max-width: 75ch; margin: 6px 0 16px; }
+.pasos { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+.paso { background: var(--accent-soft); border-radius: 12px; padding: 16px; display: grid; gap: 6px; align-content: start; }
+.paso-ico { font-size: 24px; }
+.paso h3 { font: 700 16px var(--f-display); font-stretch: 85%; margin: 0; }
+.paso p { margin: 0; font-size: 14px; color: var(--ink-2); }
+.botones { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.btn { display: inline-block; font: 600 14px var(--f-body); text-decoration: none; background: var(--accent); color: #fff; border: 1px solid var(--accent); border-radius: 8px; padding: 7px 12px; }
+.btn.sec { background: var(--panel); color: var(--accent); }
+.btn[hidden], .form-only[hidden], .repo-only[hidden] { display: none; }
+.btn:hover { filter: brightness(1.08); }
+.ficha .reportar { display: inline-block; margin-top: 10px; font-size: 13px; color: var(--accent); }
+.alerta .sesgo { font-size: 13px; margin-top: 2px; font-weight: 600; }
+.alerta .sesgo::before { content: "↳ "; }
+.leer { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px 24px; margin-top: 12px; }
+.leer h3 { font: 700 15px var(--f-display); font-stretch: 85%; margin: 0 0 4px; color: var(--ink); }
+.leer p { margin: 0; font-size: 14px; color: var(--ink-2); text-wrap: pretty; }
+.rwarn { font-size: 13px; color: var(--ink-2); margin-top: 8px; padding: 8px 10px; border-radius: 8px; background: var(--accent-soft); }
+.rwarn:empty { display: none; }
 .alerta code { font: 12px var(--f-mono); background: rgb(0 0 0 / .06); padding: 1px 5px; border-radius: 4px; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
@@ -166,9 +194,18 @@ tbody tr:hover, tbody tr.on { background: var(--accent-soft); }
       <div class="eyebrow">Región del Biobío · 33 comunas · 3 provincias</div>
       <h1><span class="brujula" aria-hidden="true">🧭</span>/*TITULO*/</h1>
       <p>Resultados electorales y condiciones sociales por comuna, en un solo mapa. Elige un indicador, toca una comuna para ver su ficha y cruza dos variables para ver cómo se relacionan.</p>
+      <div class="sellos">
+        <span>🔓 Datos abiertos: descárgalos gratis</span>
+        <span>🔍 Transparente: mostramos lo que falta</span>
+        <span>🤝 Colaborativa: ayúdanos a mejorarla</span>
+      </div>
     </div>
     <div class="meta">Datos: SERVEL · INE Censo 2024 · MDSF · SINIM · CEAD · MINVU<br>Actualizado: <span id="fecha"></span><span id="repo-wrap"> · <a id="repo" style="color:var(--accent)" target="_blank" rel="noopener">Código abierto en GitHub</a></span></div>
   </header>
+
+  <nav class="atajos" aria-label="Secciones">
+    <a href="#sec-mapa">Mapa</a><a href="#sec-cruce">Cruce de datos</a><a href="#sec-tabla">Tabla</a><a href="#sec-leer">Cómo leer</a><a href="#sec-colabora" class="destacado">Colabora</a><a href="#sec-fuentes">Fuentes</a>
+  </nav>
 
   <section class="alerta" id="alerta" role="note" aria-label="Datos faltantes" hidden>
     <div class="alerta-ico" aria-hidden="true">⚠️</div>
@@ -176,11 +213,11 @@ tbody tr:hover, tbody tr.on { background: var(--accent-soft); }
       <h2>Transparencia: datos que faltan en la base</h2>
       <p id="alerta-resumen"></p>
       <ul id="alerta-lista"></ul>
-      <p class="alerta-pie">En el mapa y la tabla estas comunas aparecen en gris como "sin dato". Si conoces la cifra oficial, agrégala en <code>datos/comunas_biobio.csv</code>.</p>
+      <p class="alerta-pie">En el mapa y la tabla estas comunas aparecen en gris como "sin dato". ¿Tienes la cifra oficial? <a href="#sec-colabora">Ayúdanos a completarla</a>.</p>
     </div>
   </section>
 
-  <section class="panel controls" aria-label="Controles del mapa">
+  <section class="panel controls" id="sec-mapa" aria-label="Controles del mapa">
     <div class="field"><label class="eyebrow" for="ind">Indicador en el mapa</label><select id="ind"></select></div>
     <div class="field"><span class="eyebrow">Resaltar</span>
       <div class="seg" id="filt" role="group" aria-label="Resaltar provincia o distrito">
@@ -216,7 +253,7 @@ tbody tr:hover, tbody tr.on { background: var(--accent-soft); }
   </div>
 
   <section class="panel">
-    <div class="eyebrow">Cruce de datos</div>
+    <div class="eyebrow" id="sec-cruce">Cruce de datos</div>
     <h2>¿Cómo se relaciona el voto con las condiciones sociales?</h2>
     <div class="controls" style="margin:12px 0">
       <div class="field"><label class="eyebrow" for="xsel">Eje horizontal</label><select id="xsel"></select></div>
@@ -229,6 +266,7 @@ tbody tr:hover, tbody tr.on { background: var(--accent-soft); }
         <div class="eyebrow">Correlación de Pearson (r)</div>
         <div class="r" id="rval"></div>
         <p id="rtext"></p>
+        <div class="rwarn" id="rwarn"></div>
         <div class="catleg" id="catleg"></div>
         <p class="hint">Cada punto es una comuna. La línea punteada es la tendencia lineal. Una correlación muestra que dos datos se mueven juntos, no que uno cause el otro.</p>
       </div>
@@ -237,7 +275,7 @@ tbody tr:hover, tbody tr.on { background: var(--accent-soft); }
 
   <section class="panel">
     <div class="tbl-bar">
-      <div><div class="eyebrow">Base de datos</div><h2>Todas las comunas</h2></div>
+      <div><div class="eyebrow" id="sec-tabla">Base de datos</div><h2>Todas las comunas</h2></div>
       <div style="display:flex;gap:10px;align-items:center"><span class="toast" id="toast" role="status"></span><button id="copy" type="button">Copiar tabla completa (CSV)</button></div>
     </div>
     <div class="tablebox"><table id="tbl"><thead></thead><tbody></tbody></table></div>
@@ -245,7 +283,35 @@ tbody tr:hover, tbody tr.on { background: var(--accent-soft); }
   </section>
 
   <section class="panel">
-    <div class="eyebrow">Fuentes y notas</div>
+    <div class="eyebrow" id="sec-leer">Antes de sacar conclusiones</div>
+    <h2>Cómo leer estos datos</h2>
+    <div class="leer">
+      <div><h3>Comunas, no personas</h3><p>Todos los datos son promedios por comuna. Que las comunas más pobres voten más por un candidato no significa que las personas pobres voten por él (falacia ecológica).</p></div>
+      <div><h3>Correlación no es causa</h3><p>Muchos indicadores se mueven juntos porque comparten un mismo trasfondo, sobre todo la diferencia entre comunas urbanas y rurales. Con solo 33 comunas, un caso extremo puede cambiar el resultado.</p></div>
+      <div><h3>Voto voluntario y obligatorio</h3><p>El plebiscito de 2020 y la presidencial de 2021 fueron con voto voluntario; desde 2022 el voto es obligatorio. Comparar esos años mezcla cambios de opinión con cambios en quién vota.</p></div>
+      <div><h3>Todo sobre votos válidos</h3><p>Los porcentajes no incluyen blancos, nulos ni a quienes no votaron. Además, se vota según el domicilio electoral del padrón, que no siempre es la comuna donde la persona vive hoy.</p></div>
+      <div><h3>Estimaciones con margen de error</h3><p>La pobreza comunal es una estimación estadística (SAE), menos precisa en comunas pequeñas. Las tasas por habitante también varían mucho donde la población es chica.</p></div>
+      <div><h3>Fuentes y años distintos</h3><p>Se combinan datos de 2020 a 2025 y de instituciones distintas. Revisa el año y la nota de cada indicador en la ficha comunal y en las fuentes al pie.</p></div>
+    </div>
+  </section>
+
+  <section class="panel colabora" id="sec-colabora">
+    <div class="eyebrow">Página colaborativa</div>
+    <h2>Los datos son de todos: úsalos, revísalos y mejóralos</h2>
+    <p class="colabora-intro">Esta página es un proyecto abierto. Cualquier persona puede descargar la base completa, revisar cómo se construyó y proponer correcciones. Cada cambio queda registrado públicamente en GitHub, con su autor y su fecha.</p>
+    <div class="pasos">
+      <div class="paso"><div class="paso-ico" aria-hidden="true">⬇️</div><h3>1. Descarga los datos</h3><p>La base completa en CSV, lista para abrir en Excel, Google Sheets, R o Python. Sin registro.</p>
+        <div class="botones"><a class="btn" href="datos/comunas_biobio.csv" download>Base por comuna (CSV)</a><a class="btn sec" href="datos/indicadores.csv" download>Diccionario de indicadores</a><a class="btn sec" href="datos/fuentes.csv" download>Fuentes</a></div></div>
+      <div class="paso"><div class="paso-ico" aria-hidden="true">🚩</div><h3>2. Reporta un error o un dato faltante</h3><p>¿Un número no calza con la fuente oficial? ¿Tienes un dato que falta? Cuéntanos qué dato, de qué comuna y de dónde sale.</p>
+        <div class="botones"><a class="btn form-only" id="btn-form" target="_blank" rel="noopener">Reportar con formulario (sin cuenta)</a><a class="btn sec repo-only" id="btn-reportar" target="_blank" rel="noopener">Reportar en GitHub</a></div></div>
+      <div class="paso"><div class="paso-ico" aria-hidden="true">✏️</div><h3>3. Propón un cambio directo</h3><p>Edita la base en GitHub y envía tu propuesta. Se revisa contra la fuente oficial antes de publicarla, y la página se actualiza.</p>
+        <div class="botones repo-only"><a class="btn sec" id="btn-editar" target="_blank" rel="noopener">Editar la base en GitHub</a><a class="btn sec" id="btn-historial" target="_blank" rel="noopener">Ver historial de cambios</a></div></div>
+    </div>
+    <p class="hint"><span class="form-only">El formulario no pide cuenta ni registro. </span>Para reportar o editar en GitHub necesitas una cuenta gratuita. Toda contribución debe citar una fuente pública y verificable.</p>
+  </section>
+
+  <section class="panel">
+    <div class="eyebrow" id="sec-fuentes">Fuentes y notas</div>
     <h2 style="margin-bottom:12px">De dónde sale cada dato</h2>
     <div class="note" id="aviso" style="margin-bottom:14px"></div>
     <div class="sources" id="sources"></div>
@@ -389,6 +455,8 @@ function drawFicha() {
     h += `</div>`;
   }
   h += `<p class="hint">Cada franja muestra las 33 comunas; el punto naranjo es ${c.nombre}. Toca un indicador para verlo en el mapa.</p>`;
+  if (CONFIG.formulario) h += `<a class="reportar" href="${CONFIG.formulario}" target="_blank" rel="noopener">🚩 ¿Ves un error en ${c.nombre}? Avísanos con el formulario</a><br>`;
+  else if (REPO) h += `<a class="reportar" href="${urlReporte(c.nombre)}" target="_blank" rel="noopener">🚩 ¿Ves un error en ${c.nombre}? Repórtalo</a>`;
   const el = document.getElementById('ficha'); el.innerHTML = h;
   el.querySelectorAll('.row').forEach(r => {
     const go = () => setInd(r.dataset.id);
@@ -443,6 +511,22 @@ function drawScatter() {
   const ar = Math.abs(r), str = ar >= .7 ? 'fuerte' : ar >= .4 ? 'moderada' : ar >= .2 ? 'débil' : 'casi nula';
   const dir = r > 0 ? 'positiva: donde sube uno, tiende a subir el otro' : 'negativa: donde sube uno, tiende a bajar el otro';
   document.getElementById('rtext').textContent = ar < .2 ? `Relación casi nula entre ${X.s.toLowerCase()} y ${Y.s.toLowerCase()} (${pts.length} comunas).` : `Relación ${str} y ${dir} (${pts.length} comunas con ambos datos).`;
+  // Advertencias de transparencia: comunas que faltan y comunas que por sí solas cambian el resultado
+  const avisos = [];
+  if (pts.length < COM.length) avisos.push(`Faltan ${COM.length - pts.length} de ${COM.length} comunas en este cruce; el resultado puede no representar a toda la región.`);
+  if (pts.length > 4 && isFinite(r)) {
+    const sinUna = pts.map(c => {
+      const o = pts.filter(p => p !== c), ox = o.map(p => p[X.id]), oy = o.map(p => p[Y.id]);
+      const ax = d3.mean(ox), ay = d3.mean(oy);
+      const sxy2 = d3.sum(ox.map((v, i) => (v - ax) * (oy[i] - ay)));
+      return { c, r: sxy2 / Math.sqrt(d3.sum(ox.map(v => (v - ax) ** 2)) * d3.sum(oy.map(v => (v - ay) ** 2))) };
+    }).filter(d => isFinite(d.r)).sort((p, q) => Math.abs(q.r - r) - Math.abs(p.r - r))[0];
+    if (sinUna && Math.abs(sinUna.r - r) >= 0.1) {
+      const f2 = v => v.toLocaleString('es-CL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      avisos.push(`Resultado sensible a un caso: sin ${sinUna.c.nombre}, r pasa de ${f2(r)} a ${f2(sinUna.r)}.`);
+    }
+  }
+  document.getElementById('rwarn').textContent = avisos.join(' ');
 }
 document.getElementById('catleg').innerHTML = PROVS.map(p => `<span><i style="background:${PCOL[p]}"></i>Prov. ${p}</span>`).join('');
 
@@ -509,8 +593,16 @@ document.querySelectorAll('#filt button').forEach(b => b.onclick = () => {
     const li = document.createElement('li');
     const b = document.createElement('b'); b.textContent = `${f.nombre} (${f.anio})`;
     const s = document.createElement('span'); s.className = 'comunas';
-    s.textContent = `: falta en ${f.comunas.length} de ${total} comunas (${f.comunas.join(', ')}).`;
-    li.append(b, s); ul.appendChild(li);
+    s.textContent = `: falta en ${f.comunas.length} de ${total} comunas (${f.comunas.join(', ')}).` + (f.motivo ? ` Motivo: ${f.motivo}.` : '');
+    li.append(b, s);
+    // Si una provincia está mucho más incompleta que otra, el promedio regional queda sesgado
+    const cob = Object.entries(f.cobertura || {}), shares = cob.map(([, [c, t]]) => c / t);
+    if (cob.length > 1 && Math.max(...shares) - Math.min(...shares) >= 0.3) {
+      const w = document.createElement('div'); w.className = 'sesgo';
+      w.textContent = `Faltan de forma desigual entre provincias (${cob.map(([p, [c, t]]) => `${p}: ${c} de ${t}`).join(' · ')}). Los promedios y cruces con este indicador no representan a toda la región.`;
+      li.appendChild(w);
+    }
+    ul.appendChild(li);
   });
   document.getElementById('alerta').hidden = false;
 })();
@@ -518,5 +610,22 @@ document.querySelectorAll('#filt button').forEach(b => b.onclick = () => {
 const av = document.getElementById('aviso'); if (CONFIG.aviso) av.textContent = CONFIG.aviso; else av.hidden = true;
 document.getElementById('fecha').textContent = CONFIG.fecha;
 if (CONFIG.repositorio) document.getElementById('repo').href = CONFIG.repositorio; else document.getElementById('repo-wrap').hidden = true;
+
+// ---------- colabora ----------
+const REPO = (CONFIG.repositorio || '').replace(/\/$/, '');
+function urlReporte(comuna) {
+  const titulo = comuna ? `Dato a revisar: ${comuna}` : 'Dato a revisar';
+  const cuerpo = `**Comuna:** ${comuna || ''}\n**Indicador:** \n**Valor en la página:** \n**Valor correcto:** \n**Fuente (enlace):** \n`;
+  return `${REPO}/issues/new?title=${encodeURIComponent(titulo)}&body=${encodeURIComponent(cuerpo)}`;
+}
+if (REPO) {
+  document.getElementById('btn-reportar').href = urlReporte('');
+  document.getElementById('btn-editar').href = `${REPO}/edit/main/datos/comunas_biobio.csv`;
+  document.getElementById('btn-historial').href = `${REPO}/commits/main/datos/comunas_biobio.csv`;
+} else {
+  document.querySelectorAll('.repo-only').forEach(e => e.hidden = true);
+}
+if (CONFIG.formulario) document.getElementById('btn-form').href = CONFIG.formulario;
+else document.querySelectorAll('.form-only').forEach(e => e.hidden = true);
 drawMap(); drawFicha(); drawScatter(); drawTable();
 </script>
