@@ -44,7 +44,7 @@ CONFIGURACION = {
     "cruce_y": "kast_2021_2v",
     # Columnas de la tabla "Todas las comunas"
     "columnas_tabla": [
-        "poblacion", "kast_2025_2v", "kast_2021_2v", "rechazo_2022", "apruebo_2020",
+        "poblacion", "kast_2025_2v", "participacion_2025_2v", "kast_2021_2v", "rechazo_2022", "apruebo_2020",
         "pobreza_ingresos", "pobreza_multi", "escolaridad", "pct_indigena",
         "pct_rural", "dmcs_tasa", "dep_fcm",
     ],
@@ -55,10 +55,9 @@ CONFIGURACION = {
     ],
     # Aviso destacado en la sección de fuentes. Déjalo vacío ("") para ocultarlo.
     "aviso": (
-        "Segunda vuelta presidencial 2025: por ahora hay 20 de las 33 comunas, con los "
-        "porcentajes de SERVEL (100% de mesas) tal como los publicó la prensa regional. "
-        "Para completar las 13 restantes, agrega los valores en la columna kast_2025_2v "
-        "de datos/comunas_biobio.csv."
+        "Segunda vuelta presidencial 2025: las 33 comunas están completas, con los resultados "
+        "de SERVEL (100% de mesas escrutadas) tomados de la base pública de DecideChile. "
+        "Incluye participación y votos blancos y nulos."
     ),
 }
 
